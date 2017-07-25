@@ -1,3 +1,5 @@
+// Consumer
+// Worker
 const amqp = require('amqplib');
 const q = require('./queues.json');
 
@@ -11,10 +13,14 @@ amqp.connect('amqp://localhost')
 
     // Also creating the queue here because the consumer might start before the publisher so we want to make
     // sure it already exists.
-    ch.assertQueue(q.Q_IN_REQ, { durable: false });
+    ch.assertQueue(q.Q_IN_REQ, { durable: true });
 
     ch.consume(q.Q_IN_REQ, msg => {
+        const secs = msg.content.toString().split('.').length -1;
         console.log(`Received message [${ new Date().getTime() }]: ${ msg.content.toString() }`)
+        setTimeout(() => {
+            console.log('Request processed!');
+        }, secs * 1000);
     }, { noAck: true });
 })
 .catch(err => {
